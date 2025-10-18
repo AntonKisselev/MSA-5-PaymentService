@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="aeb6dcc">
+  <bpmn:process id="PaymentOrchestration" name="Payment Orchestration Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="начало оплаты">
+      <bpmn:outgoing>SequenceFlow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ServiceTask_Validate" name="Валидация данных, создание платежного документа">
+      <bpmn:incoming>SequenceFlow_1</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ServiceTask_FraudCheck" name="проверка в антифрод-системе и внешних сервисах">
+      <bpmn:incoming>SequenceFlow_3</bpmn:incoming>
+      <bpmn:incoming>Flow_0qk633r</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_19dq2z3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_031l51x</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qd16mg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ServiceTask_Debit" name="Списание денег со счета">
+      <bpmn:incoming>SequenceFlow_5</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_2</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_8</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0qk633r</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="UserTask_ManualReview" name="Ручная проверка">
+      <bpmn:incoming>SequenceFlow_10</bpmn:incoming>
+      <bpmn:incoming>Flow_19dq2z3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_13</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0l3ihar</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_Wait" name="Ожидание результата проверки">
+      <bpmn:incoming>SequenceFlow_13</bpmn:incoming>
+      <bpmn:incoming>Flow_0l3ihar</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_14</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qkp43a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ek46vu</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration>PT20M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="ServiceTask_Transfer" name="перевод денег поставщику">
+      <bpmn:incoming>SequenceFlow_11</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_15</bpmn:incoming>
+      <bpmn:incoming>Flow_0k6x3n4</bpmn:incoming>
+      <bpmn:incoming>Flow_1xq0yst</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0vj4ptq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_Transfer" name="проверка переведены ли деньги">
+      <bpmn:incoming>SequenceFlow_17</bpmn:incoming>
+      <bpmn:incoming>Flow_0vj4ptq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_18</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_19</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0vzwhug</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1xq0yst</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="ServiceTask_SuccessNotify" name="отправка уведомления">
+      <bpmn:incoming>SequenceFlow_18</bpmn:incoming>
+      <bpmn:incoming>Flow_0vzwhug</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_20</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0t99qr0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Success" name="оплата произведена">
+      <bpmn:incoming>SequenceFlow_20</bpmn:incoming>
+      <bpmn:incoming>Flow_0t99qr0</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="ServiceTask_Refund" name="Возврат средств">
+      <bpmn:incoming>SequenceFlow_12</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_16</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_19</bpmn:incoming>
+      <bpmn:incoming>Flow_0qwoyop</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_21</bpmn:outgoing>
+      <bpmn:outgoing>Flow_08h82st</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ServiceTask_RefundNotify" name="Отправка уведомелния">
+      <bpmn:incoming>SequenceFlow_21</bpmn:incoming>
+      <bpmn:incoming>Flow_08h82st</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_22</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1szxfmb</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ServiceTask_SecurityLog" name="фиксация инцидента">
+      <bpmn:incoming>SequenceFlow_22</bpmn:incoming>
+      <bpmn:incoming>Flow_1szxfmb</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_23</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0yab4uj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Refund" name="возврат успешен">
+      <bpmn:incoming>SequenceFlow_23</bpmn:incoming>
+      <bpmn:incoming>Flow_0yab4uj</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1" sourceRef="StartEvent_1" targetRef="ServiceTask_Validate" />
+    <bpmn:sequenceFlow id="SequenceFlow_2" sourceRef="ServiceTask_Validate" targetRef="ServiceTask_Debit" />
+    <bpmn:sequenceFlow id="SequenceFlow_3" sourceRef="ParallelGateway_Start" targetRef="ServiceTask_FraudCheck" />
+    <bpmn:sequenceFlow id="SequenceFlow_4" sourceRef="ParallelGateway_Start" targetRef="ServiceTask_AMLCheck" />
+    <bpmn:sequenceFlow id="SequenceFlow_5" sourceRef="ParallelGateway_Start" targetRef="ServiceTask_Debit" />
+    <bpmn:sequenceFlow id="SequenceFlow_6" sourceRef="ServiceTask_FraudCheck" targetRef="ParallelGateway_End" />
+    <bpmn:sequenceFlow id="SequenceFlow_7" sourceRef="ServiceTask_AMLCheck" targetRef="ParallelGateway_End" />
+    <bpmn:sequenceFlow id="SequenceFlow_8" sourceRef="ServiceTask_Debit" targetRef="ParallelGateway_End" />
+    <bpmn:sequenceFlow id="SequenceFlow_9" sourceRef="ParallelGateway_End" targetRef="ExclusiveGateway_Evaluate" />
+    <bpmn:sequenceFlow id="SequenceFlow_10" sourceRef="ExclusiveGateway_Evaluate" targetRef="UserTask_ManualReview" />
+    <bpmn:sequenceFlow id="SequenceFlow_11" sourceRef="ExclusiveGateway_Evaluate" targetRef="ServiceTask_Transfer" />
+    <bpmn:sequenceFlow id="SequenceFlow_12" sourceRef="ExclusiveGateway_Evaluate" targetRef="ServiceTask_Refund" />
+    <bpmn:sequenceFlow id="SequenceFlow_13" sourceRef="UserTask_ManualReview" targetRef="IntermediateCatchEvent_Wait" />
+    <bpmn:sequenceFlow id="SequenceFlow_14" sourceRef="IntermediateCatchEvent_Wait" targetRef="ExclusiveGateway_Manual" />
+    <bpmn:sequenceFlow id="SequenceFlow_15" sourceRef="ExclusiveGateway_Manual" targetRef="ServiceTask_Transfer" />
+    <bpmn:sequenceFlow id="SequenceFlow_16" sourceRef="ExclusiveGateway_Manual" targetRef="ServiceTask_Refund" />
+    <bpmn:sequenceFlow id="SequenceFlow_17" sourceRef="ServiceTask_Transfer" targetRef="ExclusiveGateway_Transfer" />
+    <bpmn:sequenceFlow id="SequenceFlow_18" sourceRef="ExclusiveGateway_Transfer" targetRef="ServiceTask_SuccessNotify" />
+    <bpmn:sequenceFlow id="SequenceFlow_19" sourceRef="ExclusiveGateway_Transfer" targetRef="ServiceTask_Refund" />
+    <bpmn:sequenceFlow id="SequenceFlow_20" sourceRef="ServiceTask_SuccessNotify" targetRef="EndEvent_Success" />
+    <bpmn:sequenceFlow id="SequenceFlow_21" sourceRef="ServiceTask_Refund" targetRef="ServiceTask_RefundNotify" />
+    <bpmn:sequenceFlow id="SequenceFlow_22" sourceRef="ServiceTask_RefundNotify" targetRef="ServiceTask_SecurityLog" />
+    <bpmn:sequenceFlow id="SequenceFlow_23" sourceRef="ServiceTask_SecurityLog" targetRef="EndEvent_Refund" />
+    <bpmn:sequenceFlow id="Flow_08h82st" sourceRef="ServiceTask_Refund" targetRef="ServiceTask_RefundNotify" />
+    <bpmn:sequenceFlow id="Flow_1szxfmb" sourceRef="ServiceTask_RefundNotify" targetRef="ServiceTask_SecurityLog" />
+    <bpmn:sequenceFlow id="Flow_0vzwhug" sourceRef="ExclusiveGateway_Transfer" targetRef="ServiceTask_SuccessNotify" />
+    <bpmn:sequenceFlow id="Flow_0t99qr0" sourceRef="ServiceTask_SuccessNotify" targetRef="EndEvent_Success" />
+    <bpmn:sequenceFlow id="Flow_0qk633r" sourceRef="ServiceTask_Debit" targetRef="ServiceTask_FraudCheck" />
+    <bpmn:sequenceFlow id="Flow_0l3ihar" sourceRef="UserTask_ManualReview" targetRef="IntermediateCatchEvent_Wait" />
+    <bpmn:sequenceFlow id="Flow_19dq2z3" sourceRef="ServiceTask_FraudCheck" targetRef="UserTask_ManualReview" />
+    <bpmn:exclusiveGateway id="Gateway_14ixsyw" name="Проверка не успешная">
+      <bpmn:incoming>Flow_0ek46vu</bpmn:incoming>
+      <bpmn:incoming>Flow_1qd16mg</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qwoyop</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0vj4ptq" sourceRef="ServiceTask_Transfer" targetRef="ExclusiveGateway_Transfer" />
+    <bpmn:exclusiveGateway id="Gateway_015tuxv" name="проверка успешная">
+      <bpmn:incoming>Flow_031l51x</bpmn:incoming>
+      <bpmn:incoming>Flow_1qkp43a</bpmn:incoming>
+      <bpmn:outgoing>Flow_0k6x3n4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_031l51x" sourceRef="ServiceTask_FraudCheck" targetRef="Gateway_015tuxv" />
+    <bpmn:sequenceFlow id="Flow_1qkp43a" sourceRef="IntermediateCatchEvent_Wait" targetRef="Gateway_015tuxv" />
+    <bpmn:sequenceFlow id="Flow_0ek46vu" sourceRef="IntermediateCatchEvent_Wait" targetRef="Gateway_14ixsyw" />
+    <bpmn:sequenceFlow id="Flow_1qd16mg" sourceRef="ServiceTask_FraudCheck" targetRef="Gateway_14ixsyw" />
+    <bpmn:sequenceFlow id="Flow_0k6x3n4" sourceRef="Gateway_015tuxv" targetRef="ServiceTask_Transfer" />
+    <bpmn:sequenceFlow id="Flow_1xq0yst" sourceRef="ExclusiveGateway_Transfer" targetRef="ServiceTask_Transfer" />
+    <bpmn:sequenceFlow id="Flow_0qwoyop" sourceRef="Gateway_14ixsyw" targetRef="ServiceTask_Refund" />
+    <bpmn:sequenceFlow id="Flow_0yab4uj" sourceRef="ServiceTask_SecurityLog" targetRef="EndEvent_Refund" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PaymentOrchestration">
+      <bpmndi:BPMNShape id="ServiceTask_FraudCheck_di" bpmnElement="ServiceTask_FraudCheck">
+        <dc:Bounds x="490" y="30" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_Debit_di" bpmnElement="ServiceTask_Debit">
+        <dc:Bounds x="490" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_Transfer_di" bpmnElement="ServiceTask_Transfer">
+        <dc:Bounds x="840" y="180" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_Transfer_di" bpmnElement="ExclusiveGateway_Transfer" isMarkerVisible="true">
+        <dc:Bounds x="990" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="976" y="245" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_SuccessNotify_di" bpmnElement="ServiceTask_SuccessNotify">
+        <dc:Bounds x="1090" y="180" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Success_di" bpmnElement="EndEvent_Success">
+        <dc:Bounds x="1240" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1225" y="238" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_ManualReview_di" bpmnElement="UserTask_ManualReview">
+        <dc:Bounds x="965" y="30" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_015tuxv_di" bpmnElement="Gateway_015tuxv" isMarkerVisible="true">
+        <dc:Bounds x="765" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="765" y="252" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_Wait_di" bpmnElement="IntermediateCatchEvent_Wait">
+        <dc:Bounds x="812" y="92" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="801" y="42" width="57" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_Validate_di" bpmnElement="ServiceTask_Validate">
+        <dc:Bounds x="350" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="272" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="252" y="138" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_14ixsyw_di" bpmnElement="Gateway_14ixsyw" isMarkerVisible="true">
+        <dc:Bounds x="895" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="888" y="402" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_Refund_di" bpmnElement="ServiceTask_Refund">
+        <dc:Bounds x="990" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_RefundNotify_di" bpmnElement="ServiceTask_RefundNotify">
+        <dc:Bounds x="1140" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_SecurityLog_di" bpmnElement="ServiceTask_SecurityLog">
+        <dc:Bounds x="1270" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Refund_di" bpmnElement="EndEvent_Refund">
+        <dc:Bounds x="1402" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1377" y="388" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1_di" bpmnElement="SequenceFlow_1">
+        <di:waypoint x="308" y="120" />
+        <di:waypoint x="350" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_2_di" bpmnElement="SequenceFlow_2">
+        <di:waypoint x="400" y="160" />
+        <di:waypoint x="400" y="280" />
+        <di:waypoint x="490" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08h82st_di" bpmnElement="Flow_08h82st">
+        <di:waypoint x="1090" y="370" />
+        <di:waypoint x="1140" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1szxfmb_di" bpmnElement="Flow_1szxfmb">
+        <di:waypoint x="1240" y="370" />
+        <di:waypoint x="1270" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vzwhug_di" bpmnElement="Flow_0vzwhug">
+        <di:waypoint x="1040" y="220" />
+        <di:waypoint x="1090" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0t99qr0_di" bpmnElement="Flow_0t99qr0">
+        <di:waypoint x="1190" y="220" />
+        <di:waypoint x="1240" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qk633r_di" bpmnElement="Flow_0qk633r">
+        <di:waypoint x="540" y="230" />
+        <di:waypoint x="540" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l3ihar_di" bpmnElement="Flow_0l3ihar">
+        <di:waypoint x="965" y="90" />
+        <di:waypoint x="937" y="90" />
+        <di:waypoint x="937" y="110" />
+        <di:waypoint x="848" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19dq2z3_di" bpmnElement="Flow_19dq2z3">
+        <di:waypoint x="590" y="55" />
+        <di:waypoint x="800" y="-7" />
+        <di:waypoint x="1015" y="-7" />
+        <di:waypoint x="1015" y="30" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vj4ptq_di" bpmnElement="Flow_0vj4ptq">
+        <di:waypoint x="940" y="220" />
+        <di:waypoint x="990" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_031l51x_di" bpmnElement="Flow_031l51x">
+        <di:waypoint x="590" y="70" />
+        <di:waypoint x="790" y="70" />
+        <di:waypoint x="790" y="195" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qkp43a_di" bpmnElement="Flow_1qkp43a">
+        <di:waypoint x="812" y="110" />
+        <di:waypoint x="790" y="110" />
+        <di:waypoint x="790" y="195" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ek46vu_di" bpmnElement="Flow_0ek46vu">
+        <di:waypoint x="830" y="128" />
+        <di:waypoint x="830" y="370" />
+        <di:waypoint x="895" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qd16mg_di" bpmnElement="Flow_1qd16mg">
+        <di:waypoint x="590" y="100" />
+        <di:waypoint x="690" y="100" />
+        <di:waypoint x="690" y="370" />
+        <di:waypoint x="895" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k6x3n4_di" bpmnElement="Flow_0k6x3n4">
+        <di:waypoint x="815" y="220" />
+        <di:waypoint x="840" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xq0yst_di" bpmnElement="Flow_1xq0yst">
+        <di:waypoint x="1011" y="241" />
+        <di:waypoint x="1000" y="300" />
+        <di:waypoint x="890" y="300" />
+        <di:waypoint x="890" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qwoyop_di" bpmnElement="Flow_0qwoyop">
+        <di:waypoint x="945" y="370" />
+        <di:waypoint x="990" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yab4uj_di" bpmnElement="Flow_0yab4uj">
+        <di:waypoint x="1370" y="370" />
+        <di:waypoint x="1402" y="370" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
